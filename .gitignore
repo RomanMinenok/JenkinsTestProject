@@ -1,0 +1,17 @@
+# Android Studio
+*.iml
+.idea/*
+!.idea/codeStyles/
+local.properties
+
+.gradle
+*/build
+/captures
+.externalNativeBuild
+/build
+
+# OS Specific
+.DS_Store
+
+# Signing
+release_signing.properties

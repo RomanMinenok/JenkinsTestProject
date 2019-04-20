@@ -1,0 +1,56 @@
+pipeline {
+    agent { label 'android' }
+
+     environment {
+        context_job = 'All Checks'
+        context_analysis = 'Code Analysis'
+        context_test = 'Tests'
+        context_ui_tests = 'UI Tests'
+    }
+
+    stages {
+        stage('Prepare') {
+            steps {
+                setGitHubPullRequestStatus(context: env.context_job, message: "Job started", state: "PENDING")
+                setGitHubPullRequestStatus(context: env.context_analysis, message: "Job started", state: "PENDING")
+                setGitHubPullRequestStatus(context: env.context_test, message: "Job started", state: "PENDING")
+                setGitHubPullRequestStatus(context: env.context_ui_tests, message: "Job started", state: "PENDING")
+            }
+        }
+        stage('Code analysis') {
+            steps {
+                tryOr('UNSTABLE') {
+                    gradlew 'detekt'
+                }
+                tryOr('UNSTABLE') {
+                    gradlew 'clean lintDevDebug'
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: false, testResults: "app/build/test-results/**/*.xml"
+                }
+                success {
+                    setGitHubPullRequestStatus(context: env.context_test, message: "Code analysis OK", state: "SUCCESS")
+                }
+                unstable {
+                    setGitHubPullRequestStatus(context: env.context_test, message: "Code analysis failed", state: "FAILURE")
+                }
+            }
+        }
+    }
+}
+
+def gradlew(String task) {
+    bash "./gradlew ${task} -PdisablePreDex --info"
+}
+
+void tryOr(jobResult, Closure<Void> task) {
+    script {
+        try {
+            task()
+        } catch (e) {
+            currentBuild.result = jobResult
+        }
+    }
+}
