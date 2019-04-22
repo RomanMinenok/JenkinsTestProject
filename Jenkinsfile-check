@@ -1,5 +1,4 @@
-pipeline {
-    agent { label 'android' }
+node {
 
      environment {
         context_job = 'All Checks'
@@ -16,6 +15,9 @@ pipeline {
                 setGitHubPullRequestStatus(context: env.context_test, message: "Job started", state: "PENDING")
                 setGitHubPullRequestStatus(context: env.context_ui_tests, message: "Job started", state: "PENDING")
             }
+        }
+        stage('Checkout') {
+             checkout scm
         }
         stage('Code analysis') {
             steps {
@@ -38,11 +40,48 @@ pipeline {
                 }
             }
         }
+        stage("Unit Tests") {
+            steps {
+                tryOr('UNSTABLE') {
+                    gradlew 'clean app:testDevDebugUnitTest'
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: false, testResults: "app/build/test-results/**/*.xml"
+                }
+                success {
+                    setGitHubPullRequestStatus(context: env.context_test, message: "Tests ok", state: "SUCCESS")
+                }
+                unstable {
+                    setGitHubPullRequestStatus(context: env.context_test, message: "Tests Failed", state: "FAILURE")
+                }
+            }
+        }
+        stage("UI Tests") {
+            steps {
+                println "Ui tests"
+            }
+        }
     }
+    post {
+            success {
+                setGitHubPullRequestStatus(context: env.context_job, message: "All is good", state: "SUCCESS")
+            }
+            failure {
+                setGitHubPullRequestStatus(context: env.context_job, message: "Fatal error", state: "FAILURE")
+            }
+            unstable {
+                setGitHubPullRequestStatus(context: env.context_job, message: "Fails but ok", state: "SUCCESS")
+            }
+            aborted {
+                setGitHubPullRequestStatus(context: env.context_job, message: "Build canceled", state: "FAILURE")
+            }
+        }
 }
 
 def gradlew(String task) {
-    bash "./gradlew ${task} -PdisablePreDex --info"
+    sh "./gradlew ${task} -PdisablePreDex --info"
 }
 
 void tryOr(jobResult, Closure<Void> task) {
