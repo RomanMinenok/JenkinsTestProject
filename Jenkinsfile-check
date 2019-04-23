@@ -10,14 +10,14 @@ pipeline {
     }
 
     stages {
-        stage('Prepare') {
-            steps {
-                setGitHubPullRequestStatus(context: env.context_job, message: "Job started", state: "PENDING")
-                setGitHubPullRequestStatus(context: env.context_analysis, message: "Job started", state: "PENDING")
-                setGitHubPullRequestStatus(context: env.context_test, message: "Job started", state: "PENDING")
-                setGitHubPullRequestStatus(context: env.context_ui_tests, message: "Job started", state: "PENDING")
-            }
-        }
+        // stage('Prepare') {
+        //     steps {
+        //         setGitHubPullRequestStatus(context: env.context_job, message: "Job started", state: "PENDING")
+        //         setGitHubPullRequestStatus(context: env.context_analysis, message: "Job started", state: "PENDING")
+        //         setGitHubPullRequestStatus(context: env.context_test, message: "Job started", state: "PENDING")
+        //         setGitHubPullRequestStatus(context: env.context_ui_tests, message: "Job started", state: "PENDING")
+        //     }
+        // }
         stage('Checkout') {
             steps {
                 checkout([
@@ -88,20 +88,20 @@ pipeline {
             }
         }
     }
-    post {
-            success {
-                setGitHubPullRequestStatus(context: env.context_job, message: "All is good", state: "SUCCESS")
-            }
-            failure {
-                setGitHubPullRequestStatus(context: env.context_job, message: "Fatal error", state: "FAILURE")
-            }
-            unstable {
-                setGitHubPullRequestStatus(context: env.context_job, message: "Fails but ok", state: "SUCCESS")
-            }
-            aborted {
-                setGitHubPullRequestStatus(context: env.context_job, message: "Build canceled", state: "FAILURE")
-            }
-        }
+    // post {
+    //         success {
+    //             setGitHubPullRequestStatus(context: env.context_job, message: "All is good", state: "SUCCESS")
+    //         }
+    //         failure {
+    //             setGitHubPullRequestStatus(context: env.context_job, message: "Fatal error", state: "FAILURE")
+    //         }
+    //         unstable {
+    //             setGitHubPullRequestStatus(context: env.context_job, message: "Fails but ok", state: "SUCCESS")
+    //         }
+    //         aborted {
+    //             setGitHubPullRequestStatus(context: env.context_job, message: "Build canceled", state: "FAILURE")
+    //         }
+    // }
 }
 
 def gradlew(String task) {
