@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage ('Log') {
             steps {
-                println "This is sparta"
+                println "This is sparta 2"
             }
         }
         // stage('Prepare') {
@@ -25,27 +25,7 @@ pipeline {
         // }
         stage('Checkout') {
             steps {
-                checkout([
-                        $class                           : 'GitSCM',
-                        branches                         : scm.branches,
-                        userRemoteConfigs                : scm.userRemoteConfigs,
-                        submoduleCfg                     : [],
-                        doGenerateSubmoduleConfigurations: false,
-                        extensions                       : [
-                                [$class: 'CleanBeforeCheckout'],
-                                [$class : 'CloneOption',
-                                 shallow: true,
-                                 depth  : 1000,
-                                 noTags : true,
-                                 timeout: 30],
-                                [$class: 'PreBuildMerge', options:
-                                        [fastForwardMode: 'FF',
-                                         mergeRemote    : 'origin',
-                                         mergeStrategy  : 'default',
-                                         mergeTarget    : "${env.GITHUB_PR_TARGET_BRANCH}"]
-                                ]
-                        ]
-                ])
+                checkout scm
             }
         }
         stage('Code analysis') {
@@ -57,17 +37,17 @@ pipeline {
                     gradlew 'clean lintDevDebug'
                 }
             }
-            post {
-                always {
-                    junit allowEmptyResults: false, testResults: "app/build/test-results/**/*.xml"
-                }
-                success {
-                    setGitHubPullRequestStatus(context: env.context_test, message: "Code analysis OK", state: "SUCCESS")
-                }
-                unstable {
-                    setGitHubPullRequestStatus(context: env.context_test, message: "Code analysis failed", state: "FAILURE")
-                }
-            }
+            // post {
+            //     always {
+            //         junit allowEmptyResults: false, testResults: "app/build/test-results/**/*.xml"
+            //     }
+            //     success {
+            //         setGitHubPullRequestStatus(context: env.context_test, message: "Code analysis OK", state: "SUCCESS")
+            //     }
+            //     unstable {
+            //         setGitHubPullRequestStatus(context: env.context_test, message: "Code analysis failed", state: "FAILURE")
+            //     }
+            // }
         }
         stage("Unit Tests") {
             steps {
@@ -75,17 +55,17 @@ pipeline {
                     gradlew 'clean app:testDevDebugUnitTest'
                 }
             }
-            post {
-                always {
-                    junit allowEmptyResults: false, testResults: "app/build/test-results/**/*.xml"
-                }
-                success {
-                    setGitHubPullRequestStatus(context: env.context_test, message: "Tests ok", state: "SUCCESS")
-                }
-                unstable {
-                    setGitHubPullRequestStatus(context: env.context_test, message: "Tests Failed", state: "FAILURE")
-                }
-            }
+            // post {
+            //     always {
+            //         junit allowEmptyResults: false, testResults: "app/build/test-results/**/*.xml"
+            //     }
+            //     success {
+            //         setGitHubPullRequestStatus(context: env.context_test, message: "Tests ok", state: "SUCCESS")
+            //     }
+            //     unstable {
+            //         setGitHubPullRequestStatus(context: env.context_test, message: "Tests Failed", state: "FAILURE")
+            //     }
+            // }
         }
         stage("UI Tests") {
             steps {
