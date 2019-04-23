@@ -15,14 +15,14 @@ pipeline {
                 println "This is sparta 2"
             }
         }
-        // stage('Prepare') {
-        //     steps {
-        //         setGitHubPullRequestStatus(context: env.context_job, message: "Job started", state: "PENDING")
-        //         setGitHubPullRequestStatus(context: env.context_analysis, message: "Job started", state: "PENDING")
-        //         setGitHubPullRequestStatus(context: env.context_test, message: "Job started", state: "PENDING")
-        //         setGitHubPullRequestStatus(context: env.context_ui_tests, message: "Job started", state: "PENDING")
-        //     }
-        // }
+        stage('Prepare') {
+            steps {
+                setGitHubPullRequestStatus(context: env.context_job, message: "Job started", state: "PENDING")
+                setGitHubPullRequestStatus(context: env.context_analysis, message: "Job started", state: "PENDING")
+                setGitHubPullRequestStatus(context: env.context_test, message: "Job started", state: "PENDING")
+                setGitHubPullRequestStatus(context: env.context_ui_tests, message: "Job started", state: "PENDING")
+            }
+        }
         stage('Checkout') {
             steps {
                 checkout scm
