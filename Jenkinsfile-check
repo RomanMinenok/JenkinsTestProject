@@ -10,6 +10,11 @@ pipeline {
     }
 
     stages {
+        stage ('Log') {
+            steps {
+                println "This is sparta"
+            }
+        }
         // stage('Prepare') {
         //     steps {
         //         setGitHubPullRequestStatus(context: env.context_job, message: "Job started", state: "PENDING")
