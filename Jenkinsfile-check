@@ -24,8 +24,30 @@ node {
         //     }
         // }
         stage('Checkout') {
+            // steps {
+            //     checkout scm
+            // }
             steps {
-                checkout scm
+                checkout([
+                        $class                           : 'GitSCM',
+                        branches                         : scm.branches,
+                        userRemoteConfigs                : scm.userRemoteConfigs,
+                        submoduleCfg                     : [],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions                       : [
+                                [$class: 'CleanBeforeCheckout'],
+                                [$class : 'CloneOption',
+                                 shallow: true,
+                                 depth  : 1000,
+                                 noTags : true,
+                                 timeout: 30],
+                                [$class: 'PreBuildMerge', options:
+                                        [fastForwardMode: 'FF',
+                                         mergeRemote    : 'origin',
+                                         mergeTarget    : "${env.GITHUB_PR_SOURCE_BRANCH}"]
+                                ]
+                        ]
+                ])
             }
         }
         stage('Code analysis') {
