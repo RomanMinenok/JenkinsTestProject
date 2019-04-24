@@ -1,4 +1,4 @@
-pipeline {
+node {
 
     agent any
 
@@ -9,7 +9,7 @@ pipeline {
         context_ui_tests = 'UI Tests'
     }
 
-    stages {
+    // stages {
         stage ('Log') {
             steps {
                 println "This is sparta 2"
@@ -87,7 +87,7 @@ pipeline {
     //             setGitHubPullRequestStatus(context: env.context_job, message: "Build canceled", state: "FAILURE")
     //         }
     // }
-}
+// }
 
 def gradlew(String task) {
     sh "./gradlew ${task} -PdisablePreDex --info"
